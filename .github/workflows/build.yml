@@ -27,6 +27,7 @@ jobs:
           miniforge-version: latest
           auto-update-conda: false
           conda-remove-defaults: true
+          activate-environment: ""
 
       - name: Install conda-build
         run: conda install -y -n base conda-build anaconda-client

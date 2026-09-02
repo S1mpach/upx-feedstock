@@ -19,5 +19,5 @@ if errorlevel 1 exit 1
 ctest --test-dir build --output-on-failure
 if errorlevel 1 exit 1
 
-cmake --install build
+cmake --install build --strip
 if errorlevel 1 exit 1
