@@ -25,4 +25,6 @@ conda install -c ANACONDA_USER upx
 - On Windows `bld.bat` passes `CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL`. Upstream defaults to a static CRT, conda-forge links it dynamically.
 - Upstream `ctest` runs during the build (1500 tests incl. self-pack). The package test compiles `hello.c`, packs it with `upx --best`, runs the packed binary, checks `upx -t`, unpacks and compares with the original. Hello is linked statically because a dynamic one is too small to pack.
 
+- UPX doesn't pack Mach-O since 4.2.0, so on macOS the self-pack test is disabled in `ctest` and the package test only does the smoke checks. The macOS build is still useful for packing ELF/PE files.
+
 Built and tested on Linux x86-64. macOS and Windows go through CI only.

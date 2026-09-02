@@ -5,6 +5,14 @@ EXPECTED="hello from the upx test"
 
 echo "== upx --version =="
 upx --version | head -n 1
+upx --help >/dev/null
+upx --sysinfo
+
+# upx cannot pack Mach-O since 4.2.0; only smoke tests on macOS
+if [ "$(uname)" = "Darwin" ]; then
+    echo "macOS: skipping pack/unpack test (Mach-O not supported by upx)"
+    exit 0
+fi
 
 echo "== compile hello.c =="
 # static link where possible: a dynamic hello world is too small to pack
