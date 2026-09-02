@@ -30,9 +30,18 @@ jobs:
         run: conda install -y -n base conda-build anaconda-client
 
       - name: Build and test
+        if: runner.os != 'Windows'
         run: |
           conda build recipe -c conda-forge --override-channels \
             --output-folder "${GITHUB_WORKSPACE}/build_artifacts"
+
+      # conda-build must not run from Git Bash on Windows (POSIX paths end up in its .bat wrapper)
+      - name: Build and test (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd /C CALL {0}
+        run: >
+          conda build recipe -c conda-forge --override-channels
+          --output-folder "%GITHUB_WORKSPACE%\build_artifacts"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -42,9 +51,18 @@ jobs:
 
       # only on push to main and only if ANACONDA_TOKEN secret is set
       - name: Upload to Anaconda.org
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.ANACONDA_TOKEN != ''
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.ANACONDA_TOKEN != '' && runner.os != 'Windows'
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
           anaconda -t "${ANACONDA_TOKEN}" upload --skip-existing \
             build_artifacts/*/upx-*.conda
+
+      - name: Upload to Anaconda.org (Windows)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.ANACONDA_TOKEN != '' && runner.os == 'Windows'
+        shell: cmd /C CALL {0}
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: >
+          for %%f in (build_artifacts\win-64\upx-*.conda) do
+          anaconda -t "%ANACONDA_TOKEN%" upload --skip-existing "%%f"
