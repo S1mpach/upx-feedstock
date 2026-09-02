@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  conda-build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          auto-update-conda: false
+          conda-remove-defaults: true
+
+      - name: Install conda-build
+        run: conda install -y -n base conda-build anaconda-client
+
+      - name: Build and test
+        run: |
+          conda build recipe -c conda-forge --override-channels \
+            --output-folder "${GITHUB_WORKSPACE}/build_artifacts"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upx-${{ matrix.os }}
+          path: build_artifacts/**/upx-*.conda
+          if-no-files-found: error
+
+      # only on push to main and only if ANACONDA_TOKEN secret is set
+      - name: Upload to Anaconda.org
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.ANACONDA_TOKEN != ''
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: |
+          anaconda -t "${ANACONDA_TOKEN}" upload --skip-existing \
+            build_artifacts/*/upx-*.conda

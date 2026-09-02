@@ -1,0 +1,51 @@
+{% set name = "upx" %}
+{% set version = "5.2.1" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  # release tarball, not the GitHub archive: it includes the vendor/ submodules
+  url: https://github.com/upx/upx/releases/download/v{{ version }}/upx-{{ version }}-src.tar.xz
+  sha256: a7d457be4ef942e46844ee8f301206b111394cbcbde3599747a6904c54ff116b
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}
+    - cmake >=3.15
+    - ninja
+  host:
+  run:
+
+test:
+  requires:
+    - {{ compiler('c') }}
+  files:
+    - test/hello.c
+    - test/run_test.sh
+    - test/run_test.bat
+  commands:
+    - bash test/run_test.sh      # [unix]
+    - call test\run_test.bat     # [win]
+
+about:
+  home: https://upx.github.io
+  license: GPL-2.0-or-later
+  license_family: GPL
+  license_file:
+    - COPYING
+    - LICENSE
+  summary: The Ultimate Packer for eXecutables
+  description: |
+    UPX is a portable, high-performance executable packer for several
+    executable formats (ELF, PE, Mach-O and more). Packed executables are
+    typically 50-70% smaller and decompress themselves in memory at start-up
+    with no runtime or memory penalty.
+  doc_url: https://upx.github.io/upx-doc.html
+  dev_url: https://github.com/upx/upx
