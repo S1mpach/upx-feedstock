@@ -2,7 +2,7 @@
 
 Conda recipe for [UPX](https://upx.github.io) 5.2.1, the executable packer.
 
-Package: https://anaconda.org/ANACONDA_USER/upx
+Package: https://anaconda.org/s1mpach/upx
 
 ## Build
 
@@ -14,7 +14,7 @@ conda build recipe -c conda-forge --override-channels
 ## Install
 
 ```
-conda install -c ANACONDA_USER upx
+conda install -c s1mpach upx
 ```
 
 ## Notes
